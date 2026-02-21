@@ -1,0 +1,6 @@
+[
+  { "category": "Comida", "a": "Pizza", "b": "Empanada" },
+  { "category": "Lugares", "a": "Playa", "b": "Desierto" },
+  { "category": "Animales", "a": "Tigre", "b": "Leon" },
+  { "category": "Deportes", "a": "Futbol", "b": "Basquet" }
+]

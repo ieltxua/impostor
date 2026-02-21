@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-02-21T16:39:19.613Z",
+  "options": {
+    "players": 6,
+    "matches": 3,
+    "seed": 42,
+    "mode": "LIVE",
+    "chaos": false,
+    "disconnectRate": 0.2,
+    "timeoutMs": 6000,
+    "verbose": true,
+    "watchPublic": true
+  },
+  "summary": {
+    "matches": 3,
+    "passed": 3,
+    "failed": 0,
+    "averageDurationMs": 299,
+    "averageRounds": 1,
+    "totalPublicSecretLeakEvents": 0
+  },
+  "results": [
+    {
+      "matchIndex": 1,
+      "roomCode": "H9R55",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 425,
+      "reconnectDrillRan": true,
+      "staleSocketRejected": true,
+      "replacementVoteAccepted": true,
+      "publicSecretLeakEvents": 0
+    },
+    {
+      "matchIndex": 2,
+      "roomCode": "EGAQC",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 240,
+      "reconnectDrillRan": false,
+      "staleSocketRejected": false,
+      "replacementVoteAccepted": false,
+      "publicSecretLeakEvents": 0
+    },
+    {
+      "matchIndex": 3,
+      "roomCode": "YT95K",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 233,
+      "reconnectDrillRan": false,
+      "staleSocketRejected": false,
+      "replacementVoteAccepted": false,
+      "publicSecretLeakEvents": 0
+    }
+  ]
+}

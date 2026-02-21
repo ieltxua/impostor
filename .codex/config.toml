@@ -1,0 +1,18 @@
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
+model_verbosity = "low"
+
+[profiles.fast]
+model_reasoning_effort = "minimal"
+
+[profiles.deep]
+model_reasoning_effort = "high"
+
+[agents.explorer_fast]
+config_file = "/Users/ieltxualganaras/projects/impostor/.codex/agents/explorer-fast.md"
+
+[agents.implementer_balanced]
+config_file = "/Users/ieltxualganaras/projects/impostor/.codex/agents/implementer-balanced.md"
+
+[agents.reviewer_deep]
+config_file = "/Users/ieltxualganaras/projects/impostor/.codex/agents/reviewer-deep.md"

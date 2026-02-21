@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-02-21T16:33:26.962Z",
+  "options": {
+    "players": 8,
+    "matches": 5,
+    "seed": 1771691605158,
+    "mode": "LIVE",
+    "chaos": false,
+    "disconnectRate": 0.2,
+    "timeoutMs": 6000,
+    "verbose": false,
+    "watchPublic": true
+  },
+  "summary": {
+    "matches": 5,
+    "passed": 5,
+    "failed": 0,
+    "averageDurationMs": 359,
+    "averageRounds": 1,
+    "totalPublicSecretLeakEvents": 0
+  },
+  "results": [
+    {
+      "matchIndex": 1,
+      "roomCode": "3B7R3",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 333,
+      "reconnectDrillRan": false,
+      "staleSocketRejected": false,
+      "replacementVoteAccepted": false,
+      "publicSecretLeakEvents": 0
+    },
+    {
+      "matchIndex": 2,
+      "roomCode": "R4G7B",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 325,
+      "reconnectDrillRan": false,
+      "staleSocketRejected": false,
+      "replacementVoteAccepted": false,
+      "publicSecretLeakEvents": 0
+    },
+    {
+      "matchIndex": 3,
+      "roomCode": "WETWA",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 323,
+      "reconnectDrillRan": false,
+      "staleSocketRejected": false,
+      "replacementVoteAccepted": false,
+      "publicSecretLeakEvents": 0
+    },
+    {
+      "matchIndex": 4,
+      "roomCode": "CU5E6",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 493,
+      "reconnectDrillRan": true,
+      "staleSocketRejected": true,
+      "replacementVoteAccepted": true,
+      "publicSecretLeakEvents": 0
+    },
+    {
+      "matchIndex": 5,
+      "roomCode": "3BMFE",
+      "status": "passed",
+      "winner": "CIVILIANS",
+      "reason": "Mr White was eliminated.",
+      "roundNumber": 1,
+      "durationMs": 319,
+      "reconnectDrillRan": false,
+      "staleSocketRejected": false,
+      "replacementVoteAccepted": false,
+      "publicSecretLeakEvents": 0
+    }
+  ]
+}

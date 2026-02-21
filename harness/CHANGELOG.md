@@ -1,0 +1,80 @@
+# CHANGELOG - Impostor Web MVP
+
+## 2026-02-21
+- Converted `/Users/ieltxualganaras/projects/impostor/PRD_MrWhite_Impostor_Web_v1.1.pdf` into `/Users/ieltxualganaras/projects/impostor/PRD.md`.
+- Added execution-first harness docs:
+  - `/Users/ieltxualganaras/projects/impostor/harness/TASKS.md`
+  - `/Users/ieltxualganaras/projects/impostor/harness/DECISIONS.md`
+  - `/Users/ieltxualganaras/projects/impostor/harness/CHANGELOG.md`
+- Bootstrapped project-local subagent routing:
+  - `/Users/ieltxualganaras/projects/impostor/.codex/config.toml`
+  - `/Users/ieltxualganaras/projects/impostor/.codex/agents/explorer-fast.md`
+  - `/Users/ieltxualganaras/projects/impostor/.codex/agents/implementer-balanced.md`
+  - `/Users/ieltxualganaras/projects/impostor/.codex/agents/reviewer-deep.md`
+- Added repo-level policy wiring at `/Users/ieltxualganaras/projects/impostor/AGENTS.md`.
+- Recorded telemetry command evidence in `/Users/ieltxualganaras/projects/impostor/reports/telemetry/codex-usage-2026-02-21.md`.
+- Expanded `PRD.md` shared type contracts and missing behavioral rules (manual turn mode, host disconnect handling).
+- Added model/effort/token telemetry snapshot extracted from local archived session data.
+- Added full implementation scaffold for MVP:
+  - `/Users/ieltxualganaras/projects/impostor/shared/src/*`
+  - `/Users/ieltxualganaras/projects/impostor/server/src/*`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/*`
+  - root workspace setup in `/Users/ieltxualganaras/projects/impostor/package.json`
+- Implemented server-authoritative room engine, socket handlers, host-key validation, reconnect handling, and vote/resolve logic.
+- Implemented client routes (`Home`, `Lobby`, `Game`, `Public`) with socket store and anti-spoiler secret card UX.
+- Added room logic unit tests at `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts` (5 passing tests).
+- Added socket integration test suite at `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` covering:
+  - full 6-player end-to-end flow to `game:end`,
+  - reconnect mid-round with stale-socket rejection behavior,
+  - spectator/public mode secret isolation.
+- Added Phase 5 playtest/ops artifacts:
+  - `/Users/ieltxualganaras/projects/impostor/docs/PLAYTEST_RUNBOOK.md`
+  - `/Users/ieltxualganaras/projects/impostor/docs/PILOT_CHECKLIST.md`
+  - `/Users/ieltxualganaras/projects/impostor/docs/pilot/PILOT_ISSUES_TEMPLATE.md`
+  - `/Users/ieltxualganaras/projects/impostor/docs/pilot/PILOT_POSTMORTEM_TEMPLATE.md`
+  - `/Users/ieltxualganaras/projects/impostor/scripts/dev-up.sh`
+  - `/Users/ieltxualganaras/projects/impostor/scripts/dev-down.sh`
+  - `/Users/ieltxualganaras/projects/impostor/scripts/tunnel-up.sh`
+- Applied reviewer-driven hardening:
+  - socket room-switch cleanup to prevent cross-room stale sessions,
+  - strict socket ownership checks in auth/readiness paths,
+  - host action `hostKey` enforcement,
+  - reconnect rejoin flows and Mr White guess prompt recovery.
+- Fixed client build/typecheck config to prevent emitting `.js` artifacts into source directories.
+- Verified runnable outputs:
+  - `npm run test`
+  - `npm run build`
+  - `npm run lint --workspace server`
+  - `npm run typecheck --workspace client`
+  - runtime boot check via `node /Users/ieltxualganaras/projects/impostor/server/dist/index.js`.
+- Captured implementation validation report at `/Users/ieltxualganaras/projects/impostor/reports/telemetry/implementation-validation-2026-02-21.md`.
+- Closed pilot-readiness operations gaps:
+  - hardened `/Users/ieltxualganaras/projects/impostor/scripts/dev-up.sh` health checks to require successful status and expected server payload shape,
+  - hardened `/Users/ieltxualganaras/projects/impostor/scripts/dev-down.sh` PID shutdown to verify expected process command before kill.
+- Added pilot-mode operational scripts:
+  - `/Users/ieltxualganaras/projects/impostor/scripts/pilot-up.sh`
+  - `/Users/ieltxualganaras/projects/impostor/scripts/pilot-down.sh`
+  - `/Users/ieltxualganaras/projects/impostor/scripts/pilot-validate.sh`
+- Updated client socket URL resolution in `/Users/ieltxualganaras/projects/impostor/client/src/state/socket.ts` to support:
+  - Vite dev mode (`:5173` -> `:3000` same host),
+  - single-origin deployment fallback (`window.location.origin`),
+  - explicit override via `VITE_SERVER_URL`.
+- Reworked pilot docs for consistent remote flow:
+  - `/Users/ieltxualganaras/projects/impostor/docs/PLAYTEST_RUNBOOK.md`
+  - `/Users/ieltxualganaras/projects/impostor/docs/PILOT_CHECKLIST.md`
+- Logged architecture-level choice in `/Users/ieltxualganaras/projects/impostor/harness/DECISIONS.md` as `D-013` (single-origin remote pilot default).
+- Added automated pilot simulation runner at `/Users/ieltxualganaras/projects/impostor/server/src/sim/pilotSimulation.ts` with workspace script:
+  - `npm run sim:pilot -- --players <n> --matches <n>`
+  - `npm run sim:pilot:chaos`
+  - outputs structured JSON reports in `/Users/ieltxualganaras/projects/impostor/reports/sim/`.
+  - reconnect drill is guaranteed at least once per run, and stale-socket/public-secret invariants fail the run on violation.
+- Added redesign-resilient Playwright smoke framework:
+  - `/Users/ieltxualganaras/projects/impostor/e2e/playwright.config.ts`
+  - `/Users/ieltxualganaras/projects/impostor/e2e/tests/smoke.spec.ts`
+  - root scripts `test:smoke` and `test:smoke:headed`.
+  - smoke runs on dedicated ports (`client:5174`, `server:3100`) to avoid false passes from pre-existing processes.
+- Introduced stable UI selector contract with `data-testid` anchors across Home/Lobby/Game/Vote flows and documented required contracts in:
+  - `/Users/ieltxualganaras/projects/impostor/docs/UI_TEST_CONTRACT.md`
+- Added automation guide and playtest fallback documentation:
+  - `/Users/ieltxualganaras/projects/impostor/docs/AUTOMATION_SIMULATION.md`
+  - `/Users/ieltxualganaras/projects/impostor/docs/PLAYTEST_RUNBOOK.md` (automation fallback section).
