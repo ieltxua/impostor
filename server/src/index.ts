@@ -21,6 +21,24 @@ app.get('/health', (_req, res) => {
 
 const clientDistPath = path.resolve(process.cwd(), '..', 'client', 'dist');
 app.use(express.static(clientDistPath));
+app.get('/v1', (_req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+app.get('/v1/*splat', (_req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+app.get('/v3', (_req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+app.get('/v3/*splat', (_req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+app.get('/public', (_req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+app.get('/join/:roomCode', (_req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: {

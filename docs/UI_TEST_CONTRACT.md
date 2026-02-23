@@ -32,6 +32,7 @@ Purpose: allow major visual redesigns without rewriting smoke tests.
 - `host-turn-seconds`
 - `host-apply-config`
 - `host-start-game`
+- `host-close-room`
 
 ### Gameplay
 - `game-screen`

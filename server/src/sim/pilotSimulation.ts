@@ -11,6 +11,7 @@ import type {
   ClientToServerEvents,
   GameEndPayload,
   PlayerSecret,
+  PlayerSecretEnvelope,
   RoomJoinedPayload,
   RoomPublicState,
   ServerToClientEvents,
@@ -329,7 +330,7 @@ async function runMatch(
       winPreset: 'SIMPLE'
     };
 
-    const secretPromises = everyone.map((client) => onceEvent<PlayerSecret>(client.socket, 'player:secret'));
+    const secretPromises = everyone.map((client) => onceEvent<PlayerSecretEnvelope>(client.socket, 'player:secret'));
 
     host.socket.emit('host:configure', {
       hostKey: created.hostKey,
@@ -342,8 +343,8 @@ async function runMatch(
     host.socket.emit('host:start', { hostKey: created.hostKey });
 
     const secrets = await withTimeout(Promise.all(secretPromises), 'player:secret broadcast', options.timeoutMs);
-    secrets.forEach((secret, index) => {
-      everyone[index].secret = secret;
+    secrets.forEach((envelope, index) => {
+      everyone[index].secret = envelope.secret;
     });
 
     await waitForState(host, stateBySocket, (state) => state.status === 'REVEAL', 'status:REVEAL', options.timeoutMs);

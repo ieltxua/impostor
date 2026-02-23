@@ -29,3 +29,19 @@ This file governs `/Users/ieltxualganaras/projects/impostor` and all child paths
 ## Review and Validation
 - Before handoff, run at least one focused validation step and report residual risk.
 - If a required command is unavailable, record the exact failure and recommended fallback in `reports/telemetry/`.
+
+## Product UX Priorities (Gameplay-First)
+- Treat this product as mobile-first party gameplay (not a generic desktop web app). Keep per-screen cognitive load minimal and focus on one primary action at a time.
+- Prioritize invite entry (`QR` / link) over manual code entry:
+  - Standard home (no invite params): creating a room is primary.
+  - Invite home (`?room=`): show a simple, prominent join-by-name flow first; avoid equal-weight create-room UI in that state.
+  - Treat `/join/:roomCode` as canonical invite path (query-style `?room=` stays only for backward compatibility).
+- Keep online/offline visibility authoritative and consistent across all clients. If one player is shown reconnecting/offline on one device, the same status must be reflected everywhere from shared room state.
+- Reveal phase UX should be direct:
+  - Player sees own role/word with a clear reveal interaction.
+  - After reveal, player can re-open/re-check own secret as needed without navigating away.
+- Discussion phase UX should be explicit and host-controlled:
+  - All players see current speaker name.
+  - Manual turn advance is host-only.
+  - For timed rounds, all players see the timer and host can pause/resume.
+- Do not add generic app chrome (extra headers/footers/nav) that competes with gameplay unless explicitly requested.

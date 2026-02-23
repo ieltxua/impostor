@@ -1,5 +1,146 @@
 # CHANGELOG - Impostor Web MVP
 
+## 2026-02-23
+- Branding and setup simplification pass:
+  - Localized game naming by language (`Impostor` in ES, `Mr. White` in EN) in `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`, `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`, and `/Users/ieltxualganaras/projects/impostor/client/index.html`.
+  - Added generated logo asset via imagegen (`/Users/ieltxualganaras/projects/impostor/output/imagegen/logo-impostor-mark-transparent.png`) and integrated optimized app logo in `/Users/ieltxualganaras/projects/impostor/client/src/assets/logo-mark.png` + header styling in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`.
+  - Removed create-room mode selector in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Home.tsx` (create now always uses `LIVE` from UI flow).
+  - Removed custom-word/source-mode controls in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`; setup now always uses random deck filtered by selected categories.
+  - Set no-timer default for new rooms in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` and `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx` (`turnSeconds: null`).
+  - Improved numeric field UX in lobby role/timer inputs (integer parsing + mobile numeric input mode + spinner removal CSS) in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`.
+- Validation:
+  - `npm run test --workspace server` (pass, 44 tests)
+  - `npm run build` (pass)
+  - `npm run test:smoke` (pass, 4 tests)
+
+- Added long-idle room continuity + resume controls:
+  - Room lifecycle in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts` now keeps fully empty rooms for up to 1 hour (`EMPTY_ROOM_TTL_MS`) instead of deleting on immediate host disconnect.
+  - Reconnect policy now pauses gameplay after long idle and requires explicit host confirmation via new `host:resumeAfterIdle` event (`/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts` + `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts` + `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`).
+  - Public room state now surfaces resume prompt metadata (`resumePromptRequired`, `resumeIdleMinutes`) and UI shows host continue/close actions in-game.
+  - Post-start join policy now only allows previous participants to reclaim seats (new players are rejected after game start) in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`.
+  - Added/updated integration coverage in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` for late-join rejection, idle resume gating, and 1-hour expiry behavior.
+- Validation:
+  - `npm run test --workspace server` (pass, 44 tests)
+  - `npm run build` (pass; shared/server/client typecheck + build)
+
+- Canonicalized invite-entry flow for mobile-first joins:
+  - Added route-based invite support in `/Users/ieltxualganaras/projects/impostor/client/src/routing/routeContext.ts` with `resolveInviteRoomCode` and `buildInviteJoinPath`.
+  - App/store now consume invite room codes from `/join/:roomCode` (while still supporting legacy `?room=`) in `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`.
+  - QR links now generate route invites (`/join/:roomCode`) in `/Users/ieltxualganaras/projects/impostor/client/src/components/QRCode.tsx`.
+  - Invite home now asks only for player name (room code shown as static hint) in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Home.tsx`.
+  - Added SPA serving support for root join routes in `/Users/ieltxualganaras/projects/impostor/server/src/index.ts`.
+- Hardened mobile presence consistency with heartbeat + stale sweep:
+  - Added client `presence:heartbeat` emissions on interval/focus/visibility and before key player actions in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`.
+  - Added server-side presence events and stale-player sweep logic in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`.
+  - Added player `lastSeenAt` tracking and sweep helpers in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` and `/Users/ieltxualganaras/projects/impostor/shared/src/types/room.ts`.
+  - Added integration coverage for heartbeat restoration in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+- Simplified CLUES phase UX for mobile gameplay focus:
+  - Reworked discussion panel to emphasize current speaker and a single dominant host action in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/components/TurnBanner.tsx`.
+  - Added dedicated discussion styling in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`.
+  - Added/updated locale copy in `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`.
+- Fixed blocked mixed LIVE sessions (`host + remote devices + local no-device`) during reveal:
+  - Server reveal permissions now keep connected device players reveal-enabled in mixed lobbies while local no-device players stay host-managed turn-by-turn.
+  - Reveal order in mixed mode now advances across local no-device players only.
+  - Host local secret retrieval is allowed only for the active local reveal turn in LIVE mode.
+  - Files: `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`, `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`, `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts`, `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+- Fixed mixed LIVE reveal UI behavior:
+  - Connected players in mixed lobbies now see their own reveal card (not host handoff copy).
+  - Host reveal panel now auto-requests and displays only the active local player's secret and keeps `Siguiente` gated by a successful reveal.
+  - Files: `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`, `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`, `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`.
+- Added mixed voting UX so host can register only local no-device votes while connected players vote from their own devices:
+  - Files: `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`, `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`.
+- Validation:
+  - `npm run test --workspace server` (pass, 36 tests)
+  - `npm run build --workspace client` (pass)
+  - `npm run test:smoke` (pass, 3 tests)
+
+## 2026-02-22
+- Fixed client-side ready-vote clarity regressions:
+  - Lobby now displays readiness directly from authoritative `player.ready` in every row and uses the same value for start-gating, so players see an aligned ready state across devices.
+  - Vote panel now explicitly shows "you already voted / who you voted for" and keeps a persistent secondary hint when action is pending or the vote can be changed.
+  - Secret reveal flow changed from hold-to-reveal to tap-to-reveal with explicit role/word display after reveal, while preserving anti-cheat lock behavior in LIVE/REVEAL.
+  - Validation: `npm run build --workspace client`, `npm run typecheck --workspace client`, `npm run test --workspace server`, `npm run build --workspace server`.
+- Fixed LIVE multi-device secret leakage where every device received another participant's secret:
+  - `player:secret` is now emitted as `{ playerId, secret }` and all server emit paths (`start`, `nextReveal`, reconnect replay) send the envelope.
+  - Client store now applies secrets only when the envelope `playerId` matches the local `playerId`, preventing cross-device role/word overwrite.
+  - `Game` reveal rendering now allows all non-local LIVE devices to reveal their own assigned secret while keeping lockout behavior when local-only shared-device mode is active.
+- Validation: `npm run build --workspace server`, `npm run test --workspace server`, `npm run build --workspace client`.
+- Hardened LIVE secret distribution for local-only flow in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`:
+  - Added a local-only-aware branch so when any player is `isLocalOnly`, only the current reveal holder receives `player:secret` during `host:start`, `host:nextReveal`, and `host:nextWord`.
+  - Remote-only sessions keep previous behavior where each connected player receives their own reveal payload at start/next-word boundaries.
+  - Added integration coverage in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` to validate that local-only sessions receive secrets only for active reveals and stay locked to one card at a time.
+- Added shared-device reveal verification for local/manual LIVE sessions in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`:
+  - The active reveal card now renders only for the turn holder (or host receiving assigned local-only secret), preventing easy cross-player card peeking when one device is passed at the table.
+  - Added per-player reveal-attempt counters (`revealAttemptCountsByPlayerId`) in LIVE REVEAL and surfaced them in the reveal panel for host auditability.
+- Added unit coverage for attempt counting in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts` to verify counters increment on `nextReveal` and `closeReveal`.
+- Hardened LIVE shared-device reveal anti-cheat to prevent role peeking:
+  - `Game` now suppresses host local-secret controls during `REVEAL` when mode is `LIVE`, so secrets are not exposed outside the active turn panel.
+  - `SecretCard` now shows a locked-by-turn hint when another player must reveal.
+  - `roomStore` clears `localSecretPreview` whenever live reveal is active to avoid stale preview leakage across turns.
+  - i18n added `secret.revealLockedByTurnHint` for EN/ES guidance.
+  - Validation planned: `npm run typecheck --workspace client` and `npm run build --workspace client`.
+- Tightened LIVE reveal anti-cheat flow in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/components/SecretCard.tsx`:
+  - `SecretCard` now receives a lock flag and auto-hides revealed content on turn transitions.
+  - Reveal screen now computes active turn from `RoomPublicState.currentRevealPlayerId` and only allows that player to interact with their card.
+  - Added localized turn/pass copy (`game.revealTurnLabel`, `game.revealPassToLabel`) in `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts` to explicitly guide shared-device handoff.
+- Consolidated LIVE reveal controls into a single turn panel in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`:
+  - now shows the active assigned player + next target in one place.
+  - places the `Siguiente` flow control beside the reveal card so progression and next reveal identity stay in the same visual area.
+- Simplified LIVE reveal screen copy on host view to remove misleading end-of-list text and reduce on-screen information leakage during shared-device pass play:
+  - updated reveal instructions in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`,
+  - cleared host local-secret preview automatically when advancing reveal order,
+  - kept reveal-copy fallbacks neutral in `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`.
+- Fixed host start validation for all-local/manual-lobby setups in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`:
+  - `ready` checks now treat local no-device players as ready-equivalent for role count validation, preventing false `INVALID_STATE` when local tables are already "fully present".
+- Curated default Home category pair quality in `/Users/ieltxualganaras/projects/impostor/shared/src/types/words.ts`:
+  - Replaced a near-synonymous furniture pair with a less ambiguous `"Table / Chair"` pair and kept an `"Desk / Sofa"` variant to avoid repetitive `"sofa/sillón"` exposure.
+  - This reduces accidental easy-guess ambiguity in localized Spanish output.
+  - Added regression coverage in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts` for stale local readiness flags still allowing valid starts.
+- Improved host lobby readiness UX in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`:
+  - Added ready-count summary, start mismatch warning, and start button disabled state when configured role count and counted ready players diverge.
+- Hardened invite/reconnect flow in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`:
+  - auto-rejoin now skips only when invite code targets a different room than persisted session,
+  - stale `ROOM_NOT_FOUND` errors now include `roomCode` and are ignored when they do not match the active room,
+  - `HOST_DISCONNECTED` / relevant room errors return client to a safe home state with preserved player identity token.
+- Updated server error payloads to include room context for room-not-found cases:
+  - `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`
+  - `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`
+- Improved invite UX in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Home.tsx`:
+  - invite links render join-first flow with explicit invite banner,
+  - room code field is read-only when arriving from invite,
+  - room creation is visually de-prioritized behind a collapsible alternative.
+- Added styling for invite-focused home states in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`.
+- Added reusable route context helpers at `/Users/ieltxualganaras/projects/impostor/client/src/routing/routeContext.ts` and reused them in:
+  - `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/QRCode.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`
+- Added host-managed local player support (no extra device required):
+  - shared contracts for local players and host-local events in `/Users/ieltxualganaras/projects/impostor/shared/src/types/room.ts` and `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`,
+  - server room logic for add/remove local players, local vote eligibility, and local-player persistence on reset in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` and `/Users/ieltxualganaras/projects/impostor/server/src/rooms/transitions.ts`,
+  - socket handlers for `host:addLocalPlayer`, `host:removeLocalPlayer`, `host:voteForPlayer`, and `host:requestLocalSecret` in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`,
+  - client store + UI wiring for local-player management in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`, `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`, `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`, and `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`.
+- Added safety guard for local-player sessions to reject `CLASSIC_GUESS` with Mr White guess-on-elimination (prevents unreachable prompt flow without per-player socket) in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`.
+- Completed local-player UX closure in lobby:
+  - enabled inline rename/remove controls for local-only players in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`,
+  - wired rename action through store + socket event in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`,
+  - updated locale and role labels plus host-role auto-counting logic in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`,
+  - added integration coverage for rename/remove local-player flow in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+- Added regression coverage for host-managed local players in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` and `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts`.
+- Validation completed after fixes:
+  - `npm run build` (pass)
+  - `npm run test:smoke` (pass)
+  - `npm run test --workspace server` (pass, 20 tests)
+- Added resolve-result modal messaging for vote outcomes:
+  - shows role-specific elimination text (`Civil/Infiltrado/Mr White`) on every resolve transition,
+  - uses clear host CTA in the modal (`Continuar ronda` / `Comenzar nueva palabra`) depending on whether a winner is immediate,
+  - added popup animation polish in `client/src/styles/theme.css`,
+  - localized random category names via `localizeCategory` so lobby category controls match `es`/`en`.
+- Rebalanced the Home category pair in `shared/src/types/words.ts` to avoid near-synonyms in Spanish (`Sofa` + `Desk`) and kept word deck localization via `localizeWordPair`.
+- Extended random word localization to include category labels:
+  - `shared/src/types/words.ts` now localizes `pair.category` when `wordLocale` is `es`.
+  - `client/src/pages/Game.tsx` shows `gameEnd` category label and locale-aware category label lookup.
+  - Added server regression coverage in `server/src/rooms/roomLogic.test.ts` for localized category output.
+
 ## 2026-02-21
 - Converted `/Users/ieltxualganaras/projects/impostor/PRD_MrWhite_Impostor_Web_v1.1.pdf` into `/Users/ieltxualganaras/projects/impostor/PRD.md`.
 - Added execution-first harness docs:
@@ -78,3 +219,197 @@
 - Added automation guide and playtest fallback documentation:
   - `/Users/ieltxualganaras/projects/impostor/docs/AUTOMATION_SIMULATION.md`
   - `/Users/ieltxualganaras/projects/impostor/docs/PLAYTEST_RUNBOOK.md` (automation fallback section).
+- Added host room-close flow to return creator to Home and delete room server-side:
+  - client action `closeCreatedRoom` in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`
+  - host lobby control `Back To Home` in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`
+  - new socket contract `host:closeRoom` in `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`
+  - server handler in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`
+  - integration coverage in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`
+- Delivered full client redesign with reusable class-based styling and no inline styles across app/pages/shared components.
+- Added tokenized global theme system in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css` and imported it from `/Users/ieltxualganaras/projects/impostor/client/src/main.tsx`.
+- Added explicit theme control with persistence via:
+  - `/Users/ieltxualganaras/projects/impostor/client/src/theme/useTheme.ts`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/ThemeToggle.tsx`
+- Updated primary UI containers and components to use responsive premium layout classes while preserving existing gameplay behavior and `data-testid` anchors:
+  - `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/pages/Home.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/pages/Public.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/SecretCard.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/VotePanel.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/TurnBanner.tsx`
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/QRCode.tsx`
+- Validation: `npm run -w client build` succeeded (typecheck + Vite production build).
+- Post-review UI hardening fixes:
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/SecretCard.tsx`: prevent orphan reveal timers on repeated holds, add `onTouchCancel`, and preserve hold-to-reveal behavior across mouse/touch/keyboard release paths.
+  - `/Users/ieltxualganaras/projects/impostor/client/src/components/ThemeToggle.tsx`: switch to native pressed-button semantics (`aria-pressed`) to avoid incomplete custom radio keyboard expectations.
+  - `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`: improve disconnected status copy from "Socket healthy" to "Reconnecting..." when no explicit error is present.
+- Re-validation: `npm run -w client build` succeeded after hardening updates.
+- Theme scope adjustment: removed `Auto/System` selector option so the UI exposes only explicit `Claro` and `Oscuro` modes, while still using OS preference only as first-load default when no saved preference exists.
+- Generated three image-based redesign concept options with the `imagegen` skill and saved deliverables in:
+  - `/Users/ieltxualganaras/projects/impostor/output/imagegen/redesign-option-1.png`
+  - `/Users/ieltxualganaras/projects/impostor/output/imagegen/redesign-option-2.png`
+  - `/Users/ieltxualganaras/projects/impostor/output/imagegen/redesign-option-3.png`
+- Expanded shared word deck in `/Users/ieltxualganaras/projects/impostor/shared/src/types/words.ts` to a larger non-niche categorized list and exported `WORD_DECK_CATEGORIES`.
+- Extended random word source contract in `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts` to support `categories: string[]` while retaining legacy `category`.
+- Updated server random selection fallback/filter logic in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` to:
+  - filter by any selected categories (case-insensitive),
+  - support legacy single category input,
+  - fallback to full deck when selected categories are empty or unmatched.
+- Updated host lobby configuration UX in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx` with:
+  - source mode toggle (`CUSTOM` vs `RANDOM`),
+  - multi-category checkbox selection,
+  - explicit `Select All Categories` action,
+  - preserved existing smoke-contract test IDs (`host-role-*`, `host-turn-seconds`, `host-apply-config`, `host-start-game`, `host-close-room`).
+- Added accessibility and visual follow-up for new lobby selection controls:
+  - shared radio group `name` on source mode toggles in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`,
+  - checkbox/radio styling + grouped fieldset presentation in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`.
+- Added server unit coverage in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts` for random category-array filtering, legacy single-category compatibility, and unmatched-category fallback behavior.
+- Validation completed:
+  - `npm run test --workspace server` (pass, 12 tests)
+  - `npm run -w client build` (pass, typecheck + production build)
+- Iterated design direction from generic dashboard look to a game-first command-deck aesthetic by reworking global theme system in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`:
+  - new expressive heading/body typography pairing,
+  - layered background atmosphere (radial glows + tactical grid + scanline overlay),
+  - stronger HUD-like panel treatments (`.card`, titles, status pills, vote indicators),
+  - upgraded button/metric/toggle visual hierarchy for more game identity in both light and dark modes.
+- Applied post-iteration accessibility/responsive hardening for the new visual system:
+  - stronger focus ring contrast,
+  - improved light-theme status pill text contrast,
+  - safer text-input selector scope (avoid unintentionally skinning non-text input types),
+  - mobile overflow prevention for Home card grid,
+  - replaced style hook tied to `data-testid` with semantic class (`.vote-progress`) in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`.
+- Validation after design iteration:
+  - `npm run -w client build` (pass)
+  - `npm run test:smoke` (pass)
+- Added visual A/B routing for design variants:
+  - `/v1` route for Version 1 visual language,
+  - `/v3` route for Version 3 visual language,
+  - route-aware variant switcher in app header and variant-aware invite links in `/Users/ieltxualganaras/projects/impostor/client/src/components/QRCode.tsx`.
+- Added production static-route handling in `/Users/ieltxualganaras/projects/impostor/server/src/index.ts` for `/v1*`, `/v3*`, and `/public` to serve SPA entrypoint in single-origin mode.
+- Fixed spectator-route normalization in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts` so variant-prefixed public routes (`/v1/public`, `/v3/public`) do not trigger player auto-join from persisted session.
+- Added real invite QR rendering in `/Users/ieltxualganaras/projects/impostor/client/src/components/QRCode.tsx` using local `qrcode` generation:
+  - shows scannable QR image for the active invite URL,
+  - keeps textual link fallback and error fallback copy,
+  - remains variant-aware for `/v1` and `/v3` share links.
+- Added QR styling tokens/classes in `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css` (`.qr-preview`, `.qr-image`).
+- Added client QR dependencies:
+  - `qrcode` (runtime),
+  - `@types/qrcode` (type safety).
+- Validation after A/B routing implementation:
+  - `npm run lint --workspace server` (pass)
+  - `npm run -w client build` (pass)
+  - `npm run test:smoke` (pass)
+- Generalized host manual voting in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` and `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts` so host can cast/override votes for any alive player (not only local no-device players).
+- Added host-driven non-blocking continuation flow `host:nextWord`:
+  - socket contract update in `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`,
+  - room transition logic in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`,
+  - client trigger wiring in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts` and `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`.
+- Added host UI controls to continue without app votes in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`:
+  - `Next Word (Skip Vote)` in `VOTE`,
+  - `Next Word` in `END`.
+- Hardened client state cleanup in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts` to clear stale `mrWhitePrompt` and `gameEnd` when a new round starts.
+- Added regression coverage:
+  - unit test for `startNextWord` active-player/role adjustment in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts`,
+  - integration tests for host-managed connected-player vote and `host:nextWord` in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+- Validation after non-blocking vote/next-word implementation:
+  - `npm run test --workspace server` (pass, 19 tests)
+  - `npm run build` (pass)
+  - `npm run test:smoke` (pass)
+- Tightened host lobby start flow in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx`:
+  - Host start action now re-sends the currently edited configuration (`settings` + `word source`) immediately before `host:start`, reducing `INVALID_STATE: Role counts must match ready player count` when users press Start without explicitly applying changes.
+  - Validation passed after code refresh with `npm run test --workspace server` (pass) and `npm run build --workspace client` (pass).
+- Added turn-by-turn reveal control for LIVE rooms:
+  - Added sequential reveal state (`currentRevealPlayerId`, `revealPlayerOrder`, `currentRevealPlayerIndex`) in `server` room runtime and host `host:nextReveal` socket path.
+  - Added reveal order guidance and host `Next Reveal` control to `/v1` `/v3` game UI.
+  - Added i18n keys for reveal-order copy in EN/ES and Spanish default remains active when no locale override is present.
+- Added room language persistence at create-time and Spanish random-word localization:
+  - `wordLocale` is now carried in create/join flow and random deck selection is localized through `localizeWordPair`.
+  - Added regression coverage in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts`:
+    - reveal gating transitions between players
+    - sequential reveal sequencing
+    - randomized Spanish word pair localization.
+- Validation after this pass:
+  - `npm run test --workspace server` (pass, 27 tests)
+  - `npm run build --workspace server` (pass)
+  - `npm run build --workspace client` (pass)
+- Reconnect hardening for host/session recovery:
+  - Added temporary host disconnect flow with grace timer in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts` (`HOST_DISCONNECTED_TEMPORARY`) and kept definitive close semantics on `host:closeRoom`.
+  - Guarded disconnect handling against stale sockets by validating `expectedSocketId` in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`.
+  - Updated client error handling in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts` to preserve session on temporary host disconnect.
+  - Added integration coverage in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` for host temporary disconnect/rejoin and stale-socket disconnect stability during reconnect.
+- Validation for reconnect hardening:
+  - `npm run test --workspace server -- src/socket/handlers.integration.test.ts` (pass, 13 tests)
+  - `npm run lint --workspace server` (pass)
+  - `npm run build --workspace client` (pass)
+- Connection and mobile-flow stabilization pass:
+  - Added `connected` in public player state and updated server start validation to count only active-ready players (`connected || local`) in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` and `/Users/ieltxualganaras/projects/impostor/shared/src/types/room.ts`.
+  - Added lobby reconnect reclaim-by-name for disconnected non-host/non-local players in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`.
+  - Added integration coverage for disconnected-lobby start rejection + name-based rejoin in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+  - Fixed resolve continuation behavior in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` so civilian/non-winning eliminations continue clues on the same word (no forced next-word restart).
+  - Added quick personal secret review action (`Mi palabra`) and compact in-room header in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`, `/Users/ieltxualganaras/projects/impostor/client/src/App.tsx`, and `/Users/ieltxualganaras/projects/impostor/client/src/styles/theme.css`.
+  - Lobby now surfaces reconnection state in player list (`reconectando...`) and active-ready counting semantics in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Lobby.tsx` and `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`.
+- Validation for this pass:
+  - `npm run test --workspace server` (pass, 33 tests)
+  - `npm run build --workspace client` (pass)
+- Invite-first mobile UX + discussion control pass:
+  - Invite entry flow now prioritizes a simple join-by-name screen in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Home.tsx` when room code comes via link/QR.
+  - Reveal card now supports re-checking secret in-place by toggling reveal/hide in `/Users/ieltxualganaras/projects/impostor/client/src/components/SecretCard.tsx`.
+  - Added quick in-game personal secret review (`Mi palabra`) in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`.
+  - Added timed clue pause/resume controls (host-only) with shared paused state in:
+    - `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`
+    - `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`
+    - `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`
+    - `/Users/ieltxualganaras/projects/impostor/shared/src/types/room.ts`
+    - `/Users/ieltxualganaras/projects/impostor/client/src/components/TurnBanner.tsx`
+    - `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`
+  - Added AGENTS guidance for gameplay-first mobile priorities and invite-first behavior in `/Users/ieltxualganaras/projects/impostor/AGENTS.md`.
+  - Added/kept integration coverage for reconnect consistency in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+- Validation for this pass:
+  - `npm run test --workspace server` (pass, 33 tests)
+  - `npm run build --workspace client` (pass)
+  - `npm run test:smoke` (pass, 3 tests)
+- Mixed reveal host-turn fix:
+  - Updated mixed LIVE reveal candidate selection in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` to include host plus local no-device players, so host gets an explicit reveal turn.
+  - Expanded regression coverage in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts` and `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` to validate host secret delivery and mixed-order behavior when host or local starts first.
+  - Validation for this pass:
+    - `npm run test --workspace server` (pass, 36 tests)
+    - `npm run build --workspace client` (pass)
+    - `npm run test:smoke` (pass, 4 tests)
+- Reveal completion + timed-next turn controls pass:
+  - Added explicit reveal-open tracking events (`reveal:opened`, `host:markRevealOpened`) in `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`, `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`, and `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`.
+  - Enforced reveal gate in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts` so `host:closeReveal` is rejected until all alive players have at least one reveal attempt, and `host:nextReveal` requires current player opened first.
+  - Updated reveal UX in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` to disable close while pending reveals remain and to remove host self-secret quick-open during reveal.
+  - Enabled host manual `turn:next` even when timer is active in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts` and exposed both controls in discussion UI (`/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`).
+  - Added/updated regressions:
+    - `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.test.ts` (reveal open gating + attempt tracking semantics),
+    - `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts` (close-reveal guard + timed manual next turn),
+    - `/Users/ieltxualganaras/projects/impostor/e2e/tests/smoke.spec.ts` and `/Users/ieltxualganaras/projects/impostor/e2e/tests/mixed-reveal.spec.ts`.
+  - Validation for this pass:
+    - `npm run test --workspace server` (pass, 39 tests)
+    - `npm run build --workspace client` (pass)
+    - `npm run test:smoke` (pass, 4 tests)
+- Host refresh reconnect hardening:
+  - Updated host `disconnect` behavior in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts` to keep room alive for reconnect grace (no immediate delete branch) and emit updated public state.
+  - Added regression for host-only refresh/token rejoin in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`.
+  - Validation for this pass:
+    - `npm run test --workspace server` (pass, 40 tests)
+    - `npm run test:smoke` (pass, 4 tests)
+- Host in-match control expansion:
+  - Added host transfer scheduling and apply-on-next-round flow with host key regeneration in `/Users/ieltxualganaras/projects/impostor/server/src/rooms/roomLogic.ts`, `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.ts`, `/Users/ieltxualganaras/projects/impostor/shared/src/types/events.ts`, and `/Users/ieltxualganaras/projects/impostor/shared/src/types/room.ts`.
+  - Added host UI controls in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx` and wiring in `/Users/ieltxualganaras/projects/impostor/client/src/state/roomStore.ts`.
+  - Added integration coverage in `/Users/ieltxualganaras/projects/impostor/server/src/socket/handlers.integration.test.ts`:
+    - host can close room during active match
+    - host transfer is pending then applied on next round
+    - target host receives `host:granted` key and can perform host-only action.
+  - Validation for this pass:
+    - `npm run test --workspace server` (pass, 49 tests)
+    - `npm run build --workspace client` (pass)
+    - `npm run test:smoke` (pass, 4 tests)
+- Host end-game safety confirmation:
+  - Added host confirmation modal before immediate room close in `/Users/ieltxualganaras/projects/impostor/client/src/pages/Game.tsx`.
+  - Added EN/ES i18n copy for confirm/cancel labels in `/Users/ieltxualganaras/projects/impostor/client/src/i18n.ts`.
+  - Validation for this pass:
+    - `npm run build --workspace client` (pass)
+    - `npm run test:smoke` (pass, 4 tests)

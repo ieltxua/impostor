@@ -2,6 +2,7 @@ export type Role = 'CIVIL' | 'UNDERCOVER' | 'MR_WHITE';
 export type Mode = 'LIVE' | 'REMOTE';
 export type Status = 'LOBBY' | 'REVEAL' | 'CLUES' | 'VOTE' | 'RESOLVE' | 'END';
 export type WinPreset = 'SIMPLE' | 'CLASSIC_GUESS';
+export type WordLocale = 'en' | 'es';
 
 export interface RoleCounts {
   civil: number;
@@ -24,11 +25,18 @@ export interface WordPair {
   category?: string;
 }
 
+export interface ResolveOutcome {
+  winner: Winner;
+  reason: string;
+}
+
 export interface Player {
   id: string;
   name: string;
   isHost: boolean;
+  isLocalOnly: boolean;
   connected: boolean;
+  lastSeenAt: number;
   role?: Role;
   assignedWord?: string | null;
   ready: boolean;
@@ -40,9 +48,11 @@ export interface Player {
 export interface PlayerPublic {
   id: string;
   name: string;
+  connected: boolean;
   ready: boolean;
   alive: boolean;
   isHost: boolean;
+  isLocalOnly: boolean;
 }
 
 export interface EliminationResult {
@@ -62,9 +72,15 @@ export interface Room {
   roundNumber: number;
   turnOrder: string[];
   currentTurnIndex: number;
+  revealAttemptCountsByPlayerId: Record<string, number>;
   timeRemaining?: number;
+  timerPaused: boolean;
   revealAllowed: boolean;
+  wordLocale: WordLocale;
   votes: Record<string, string>;
+  revealPlayerOrder: string[];
+  currentRevealPlayerIndex: number;
+  currentRevealPlayerId?: string;
   lastElimination?: EliminationResult;
 }
 
@@ -75,10 +91,19 @@ export interface RoomPublicState {
   playersPublic: PlayerPublic[];
   roundNumber: number;
   currentSpeakerId?: string;
+  currentRevealPlayerId?: string;
+  nextRevealPlayerId?: string;
+  revealAttemptCountsByPlayerId?: Record<string, number>;
   timeRemaining?: number;
+  timerPaused?: boolean;
   votesCast?: number;
   votesTotal?: number;
+  votedPlayerIds?: string[];
   lastElimination?: EliminationResult;
+  resolveOutcome?: ResolveOutcome;
+  resumePromptRequired?: boolean;
+  resumeIdleMinutes?: number;
+  pendingHostTransferToPlayerId?: string;
 }
 
 export interface PlayerSecret {

@@ -6,6 +6,12 @@ export interface RoomRuntime extends Room {
   wordSource: WordSource;
   awaitingMrWhiteGuess: boolean;
   pendingWinner?: { winner: Winner; reason: string };
+  emptySinceAt?: number;
+  pausedByIdle: boolean;
+  idlePausedTimer: boolean;
+  resumePromptRequired: boolean;
+  resumeIdleMinutes?: number;
+  pendingHostTransferToPlayerId?: string;
 }
 
 const rooms = new Map<string, RoomRuntime>();

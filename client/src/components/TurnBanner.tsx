@@ -1,18 +1,25 @@
+import { t } from '../i18n';
+
 interface TurnBannerProps {
   speakerName?: string;
   timeRemaining?: number;
+  timerPaused?: boolean;
 }
 
-export function TurnBanner({ speakerName, timeRemaining }: TurnBannerProps) {
+export function TurnBanner({ speakerName, timeRemaining, timerPaused = false }: TurnBannerProps) {
   return (
-    <section style={{ border: '1px solid #ddd', borderRadius: 12, padding: 12 }}>
-      <h4 style={{ marginTop: 0 }}>Current Turn</h4>
-      <p style={{ marginBottom: 0 }}>
-        Speaker: <strong>{speakerName ?? 'Pending'}</strong>
+    <div className="turn-focus" data-testid="discussion-turn-banner">
+      <p className="turn-focus__label">{t('turn.currentTurnTitle')}</p>
+      <p className="turn-focus__speaker" data-testid="discussion-current-speaker">
+        {speakerName ?? t('turn.pending')}
       </p>
-      <p style={{ marginBottom: 0 }}>
-        Time remaining: <strong>{timeRemaining ?? 'manual'}</strong>
+      <p className="turn-focus__time" data-testid="discussion-timer">
+        <span>{t('turn.timeRemainingLabel')}</span>
+        <strong>
+          {timeRemaining ?? t('turn.manual')}
+          {timeRemaining !== undefined && timerPaused ? ` (${t('turn.paused')})` : ''}
+        </strong>
       </p>
-    </section>
+    </div>
   );
 }
